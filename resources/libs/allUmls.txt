@@ -1,0 +1,62 @@
+K01-01;depression
+K02-02;anxiety
+K03-03;anhedonia
+K04-04;bipolar disorder
+K05-05;smoking
+K06-06;smoking history
+K07-07;cigarette
+K08-08;EtHO
+K09-09;alcohol
+K10-10;MJ
+K11-11;marijuana
+K12-12;street drugs
+K13-13;illegality
+K14-14;manic
+K15-15;mood
+K16-16;decreased interest
+K17-17;decreased pleasure
+K18-18;violence
+K19-19;blackout
+K20-20;amotivation
+K21-21;cutting
+K22-22;bingering
+K23-23;addiction to crack
+K24-24;addiction to cocaine
+K25-25;purging to cause intestinal evacuation
+K27-27;IOP
+K28-28;intensive outpatient program
+K29-29;PHP
+K30-30;partial hospitalization program
+K31-31;DUI
+K32-32;driving under the influence
+K33-33;OUI
+K34-34;operating under the influence
+K35-35;legal trouble
+K36-36;arrest
+K37-37;outpatient treatment
+K38-38;CBT
+K39-39;cognitive behavioral therapy
+K40-40;AA
+K41-41;Alcoholics Anonymous
+K42-42;hypomania
+K43-43;hypomanic
+K44-44;hyperactivity
+K45-45;increased libido
+K46-46;elevation
+K47-47;abnormal drive
+K48-48;ECT
+K49-49;Electroconvulsive therapy
+K50-50;MDD
+K51-51;Major depressive disorder
+K52-52;OCD
+K53-53;obsessive compulsive disorder
+K54-54;BPAD
+K55-55;bipolar disorder
+K56-56;ER
+K57-57;emergency room
+K58-58;ROS
+K59-59;review of systems
+K60-60;PTSD
+K61-61;post-traumatic stress disorder
+K62-62;ADHD
+K63-63;attention deficit hyperactivity disorder
