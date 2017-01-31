@@ -1,3 +1,4 @@
+K00-00;DUMMY CONCEPTS
 K01-01;depression
 K02-02;anxiety
 K03-03;anhedonia
