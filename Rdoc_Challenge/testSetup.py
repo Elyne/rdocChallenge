@@ -55,6 +55,9 @@ def main(useAnnotatorWeighing=True):
 #     es.removeDeniedConcepts=False
 #     es.splitFamilyConcepts=False
 #     es.splitUncertainConcepts=False
+    runForExperimentSettings(features, es)
+
+def runForExperimentSettings(features, es):
 
     # Reading the train/test_data into an array
     train_data = utils.readData(cfg.PATH_TRAIN, cfg.PATH_PREPROCESSED_TRAIN)
@@ -89,24 +92,28 @@ def main(useAnnotatorWeighing=True):
 
         y_train = [d.severity for d in train_data]
 
+        #else argument added here to not override the train_data/y_train setting, otherwise we can only do one featType at a time
         if es.bootstrap:
             m.generatePrimaryFeats(bootstrap_data, es)
-            (train_data, y_train) = m.get_bootstrapped_trainset(train_data, y_train, bootstrap_data, es, estimator, th_bs=0.6)
+            (train_datac, y_trainc) = m.get_bootstrapped_trainset(train_data, y_train, bootstrap_data, es, estimator, th_bs=0.6)
+        else:
+            train_datac = train_data
+            y_trainc = y_train
 
         concatenated_data = []
-        concatenated_data.extend(train_data)
+        concatenated_data.extend(train_datac)
         concatenated_data.extend(test_data)
 
-        m.generateDataDrivenFeats(train_data, concatenated_data, es)
+        m.generateDataDrivenFeats(train_datac, concatenated_data, es)
 
         featurized = m.featurize(concatenated_data)
 
-        train_feats = featurized[0:len(train_data)]
-        test_feats = featurized[len(train_data):len(featurized)]
+        train_feats = featurized[0:len(train_datac)]
+        test_feats = featurized[len(train_datac):len(featurized)]
 
         # Do feature selection on train data
-        train_feats = fs.runFeatureSelection(train_feats, y_train, es)
-        train_feats, y_train, train_bucket = ss.runSampleSelection(train_feats, y_train, [i for i in range(len(train_data))], es)
+        train_feats = fs.runFeatureSelection(train_feats, y_trainc, es)
+        train_feats, y_trainc, train_bucket = ss.runSampleSelection(train_feats, y_trainc, [i for i in range(len(train_datac))], es)
 
         x_train = vectorizer.fit_transform(train_feats)
         x_test = vectorizer.transform(test_feats)
@@ -115,9 +122,9 @@ def main(useAnnotatorWeighing=True):
             x_train = min_max_scalar.fit_transform(x_train.toarray())
             x_test = min_max_scalar.transform(x_test.toarray())
 
-        weights_train = m.getWeights(train_data, train_bucket, es.weighInterAnnot)
+        weights_train = m.getWeights(train_datac, train_bucket, es.weighInterAnnot)
 
-        model = m.train(estimator, x_train, y_train, weights_train, model=None)
+        model = m.train(estimator, x_train, y_trainc, weights_train, model=None)
 
         y_pred = m.test(x_test, estimator=model)
 #         print(y_pred)

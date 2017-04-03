@@ -34,7 +34,7 @@ def main(useAnnotatorWeighing=True):
     # cfg.makeFolders()
     
     # Here, you can specify the feature sets you would like to use. It is arranged in an array of arrays, to enable combinations
-    features = [["DSM+1"]]
+    features = [["DSM+2"],["BOW"],["DSM+1"],["DSM"],["SNOMED"],["SNOMED+1"],["DSM+2"],["CONCEPTS"]]
     #features = [["DSM"],["DSM+1","DIST_HIER"],["DSM+1"], ["CATEGORICAL_QUESTIONSET","QUESTIONSET","LONG_QUESTIONSET"]]
     
     # Options:
@@ -55,6 +55,12 @@ def main(useAnnotatorWeighing=True):
     es.removeUncertainConcepts=False
     es.splitDeniedConcepts=False
     es.splitFamilyConcepts=True'''
+    
+    es.removeDeniedConcepts=False
+    es.splitDeniedConcepts=False
+    es.splitUncertainConcepts=False
+    es.splitFamilyConcepts=False
+
 
     #es.fs_confidence=True
     #es.fs_confidenceValueDistinction = True

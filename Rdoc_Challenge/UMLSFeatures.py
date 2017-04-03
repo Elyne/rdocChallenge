@@ -50,34 +50,41 @@ class UMLSFeatures(object):
             return cui.replace("DEN_","").replace("UNC_","").replace("FAM_","")
         else:
             return cui
-
-    def isPsychiatric(self, cui, includePreambled=True):
+        
+    def isPsychiatric(self, cui, lexiconName, includePreambled=True):
         '''
-        From the internal list, find if a cui can be considered psychiatric
-        '''    
+        From the prespecified lexicon, find if a cui can be considered psychiatric
+        '''   
+        pureCUI = self.cuiFilter(cui, includePreambled)
+        if (pureCUI in Resources.getLexiconFilter(lexiconName)):
+            return (True, cui+";"+Resources.getLexiconFilter(lexiconName)[pureCUI])
+        return (False, None)
+
+    '''def isPsychiatric(self, cui, includePreambled=True):
+        
         pureCUI = self.cuiFilter(cui, includePreambled)
         if (pureCUI in Resources.getDSM()):
             return (True, cui+";"+Resources.getDSM()[pureCUI])
         return (False, None)
     
     def isSnomedDefined(self, cui, includePreambled=True):
-        '''
+        ''
         From the internal list, find if a cui can be considered psychiatric
-        '''    
+        ''   
         pureCUI = self.cuiFilter(cui, includePreambled)
         if (pureCUI in Resources.getSnomedFilter()):
             return (True, cui+";"+Resources.getSnomedFilter()[pureCUI])
         return (False, None)
     
     def isRemotelyPsychiatric(self, cui, includePreambled=True):
-        '''
+        ''
         From the internal list, find if a cui can be considered psychiatric, or one step away from it 
         (because of it being a concept related to psychiatric)
-        '''
+        ''
         pureCUI = self.cuiFilter(cui, includePreambled)
         if pureCUI  in Resources.getDSMdev1():
             return (True, cui+";"+Resources.getDSMdev1()[pureCUI])
-        return (False, None)
+        return (False, None)'''
     
     def calculateAverageHierarchicDistance(self, cui, others):
         '''
@@ -177,12 +184,12 @@ class UMLSFeatures(object):
         return feats
     
     
-    def getDSMPlusOneFeatures(self, concepts, getConcepts=True, getMeta=True, verbose=False):
-        '''
+    '''def getDSMPlusOneFeatures(self, concepts, getConcepts=True, getMeta=True, verbose=False):
+        ''
         Calculates DSM+1-based features
         
         Does NOT calculate hierarchical distance, as this requires concepts within a given framework
-        '''
+        ''
         feats = dict()
         for cui in concepts:
             #by adding .replace("DEN_",""), we allow denied concepts (if any), to also be detected
@@ -201,20 +208,22 @@ class UMLSFeatures(object):
             feats['numDSM+1Concepts'] = len(feats)
         if (verbose):
             print(len(feats),'of',len(concepts), 'are defined in the DSM+1!')
-        return feats
+        return feats'''
     
     
-    def getDSMFeatures(self, concepts, getConcepts=True, getMeta=True, verbose=False):
+    def getLexiconFeatures(self, concepts, lexiconName, getConcepts=True, getMeta=True, verbose=False):
         '''
         Calculates all psych-based features
-        The hierarchical distance metric should be used on features from a limited type (e.g. only diagnostics, only medication, ..), otherwise
+        
+        Does not calculate the hierarchical distance metric anymore
+        That metric should be used on features from a limited type (e.g. only diagnostics, only medication, ..), otherwise
         it is not representative of the distance between facts, only of how the umls is defined.    
         '''
         pfeats = dict()
         
         ##get the concepts defined in DSM (only contains diagnostic concepts)
         for cui in concepts:
-            is_psych, cur_concept = self.isPsychiatric(cui)
+            is_psych, cur_concept = self.isPsychiatric(cui, lexiconName)
             
             if (is_psych):
                 if getConcepts:
@@ -232,43 +241,12 @@ class UMLSFeatures(object):
             
         return pfeats
     
-    def getSNOMEDFeatures(self, concepts, getConcepts=True, getMeta=True, verbose=False):
-        '''
-        Calculates all snomed-based features
-        The hierarchical distance metric should be used on features from a limited type (e.g. only diagnostics, only medication, ..), otherwise
-        it is not representative of the distance between facts, only of how the umls is defined.    
-        '''
-        pfeats = dict()
-        
-        ##get the concepts defined in DSM (only contains diagnostic concepts)
-        psycs = []
-        for cui in concepts:
-            is_psych, cur_concept = self.isSnomedDefined(cui)
-            
-            if (is_psych):
-                if ("DEN_" not in cui):
-                    psycs.append(cui)
-                if getConcepts:
-                    try:
-                        val = pfeats[cur_concept] + 1
-                    except:
-                        val = 1
-                    pfeats[cur_concept] = val
-        
-        ##if meta, add the number of concepts
-        if getMeta:
-            pfeats['numPsychConcepts'] = len(pfeats)
-        if (verbose):
-            print(len(psycs),'of',len(concepts), 'are defined in the SNOMED!')
-            
-        return pfeats
-    
     
     def getSubsetOfConcepts(self, concepts, filterName='DSM'):
         subset = []
         if (filterName == 'DSM+1'): #only perform for concepts within dsm+1 range
             for cui in concepts:
-                is_psych, cName = self.isRemotelyPsychiatric(cui, includePreambled=False)
+                is_psych, cName = self.isPsychiatric(cui, filterName, includePreambled=False)
                 if (is_psych):
                     subset.append(cName)
         elif (filterName == 'MED'):

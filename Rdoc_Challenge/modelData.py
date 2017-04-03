@@ -186,7 +186,6 @@ def generatePrimaryFeats(data, expSet):
     for cnt, d in enumerate(data):
         if cnt % 50 == 0:
             print("Generated features for", cnt, "of", len(data), "samples.")
-
         d.generatePrimaryFeatures(expSet, umlsfeats)
         
 def generateDataDrivenFeats(trainSet, data, expSet):
@@ -200,14 +199,19 @@ def generateDataDrivenFeats(trainSet, data, expSet):
                 
 
 def getScores(labels_true, labels_pred):
-    
-    print("Precision: ", precision_score(labels_true, labels_pred, average='weighted'))
-    print("Recall: ", recall_score(labels_true, labels_pred, average='weighted'))
-    print("F1 score: ", f1_score(labels_true, labels_pred, average='weighted'))
-    print("Accuracy score: ", accuracy_score(labels_true, labels_pred))
+    str2 = "Average Precision: "+ str(precision_score(labels_true, labels_pred, average='weighted'))+'\n'
+    str2 += "Average Recall: "+ str( recall_score(labels_true, labels_pred, average='weighted'))+'\n'
+    str2 += "Average F1-measure: "+ str( f1_score(labels_true, labels_pred, average='weighted'))+'\n'
+    str2 += "Accuracy score: "+ str( accuracy_score(labels_true, labels_pred))+'\n'
 
-    print("Mean absolute error (sklearn) on the test set is:", mean_absolute_error(labels_true, labels_pred))
-    print("Mean absolute error (official) statistics (per score) and score on the test set is:", mae(labels_true, labels_pred))
+    str2 += "Mean absolute error (sklearn) on the test set is:"+ str( mean_absolute_error(labels_true, labels_pred))+'\n'
+    str2 += "Average Mean absolute error, and per class (official): "+ str(mae(labels_true, labels_pred))+'\n'
+    str2 += "Average Mean absolute error (official): " + str(mae(labels_true, labels_pred)[1])+'\n'
+    
+    
+    
+    print(str2)
+    return str2
 
     
 def splitData(features, labels, testSize = 0.3):
@@ -463,8 +467,8 @@ def param_sweep_svm(data, es, gammaSweep = False, nFolds = 10, verbose = False, 
     return result_params
 
 def get_bootstrapped_trainset(trainSet, y_train, bootstrap_data, es, estimator, th_bs):
-    new_train_set = trainSet
-    new_y_train = y_train
+    new_train_set = list(trainSet)
+    new_y_train = list(y_train)
     
     trainAndBSData = trainSet + bootstrap_data
     
@@ -700,7 +704,6 @@ def train(estimator, feats_train, labels_train, weights_train, model='model.pkl'
     @param labels_train: labels for training data
     @return estimator: trained estimator (model)
     '''
-    
     estimator = estimator.fit(feats_train, labels_train, sample_weight=weights_train)
     if model is not None:
         joblib.dump(estimator, cfg.PATH_RESOURCES+model)

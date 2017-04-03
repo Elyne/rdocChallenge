@@ -30,19 +30,27 @@ def main(useAnnotatorWeighing=True):
     
     #runs = ['DSM+1,DIST_HIER','CONCEPTSwithoutContext','CONCEPTS+CONTEXT', 'BOW', 'DSM+2','CATEGORICAL_QUESTIONSET,QUESTIONSET,LONG_QUESTIONSET','DSM','SNOMED+1','DSM+1']
     runs = ['DSM+1']
-    for run in runs:
+    evaluateForFeats(runs)
+    
+def evaluateForFeats(feats):
+    log = ''
+    
+    for run in feats:
+        run = ','.join(run)
         data = utils.readData(cfg.PATH_OUTPUT+run + '/', cfg.PATH_PREPROCESSED_TEST)
         gs = utils.readData(cfg.PATH_TEST, cfg.PATH_PREPROCESSED_TEST)
-        print([x.key for x in data])
-        print([x.key for x in gs])
+        log += str([x.key for x in data]) + '\n'
+        log += str([x.key for x in gs]) + '\n'
         
         labels = [x.severity for x in data]
         labels_gs = [x.severity for x in gs]
-        print(labels)
-        print(labels_gs)
+        log += str(labels) + '\n'
+        log += str(labels_gs) + '\n'
         
-        print("Scores for",run,": ")
-        m.getScores(labels_gs, labels)
+        log += str("Scores for " + run + ": \n")
+        log += m.getScores(labels_gs, labels)
+        log += '\n\n'
+    return log;
     
 if __name__ == "__main__":
     main()

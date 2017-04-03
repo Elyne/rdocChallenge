@@ -47,7 +47,7 @@ class Data(object):
         self.feats = dict()
         
         # declare umls before iterating
-        if any(i in expSet.featTypes for i in ['CONCEPTS', 'DSM+1', 'DSM', 'DSM_HIER', 'MED', 'DIST_WORDVECTOR', 'DIST_CONCEPTVECTOR','SNOMED', 'CONCEPT_VECTOR']):
+        if any(i in expSet.featTypes for i in ['CONCEPTS','DSM', 'DSM+1', 'DSM+2','SNOMED','SNOMED+1', 'DSM_HIER', 'MED', 'DIST_WORDVECTOR', 'DIST_CONCEPTVECTOR','SNOMED', 'CONCEPT_VECTOR']):
             concepts = self.text.get_concepts()
         
         for cur_feat in expSet.featTypes:
@@ -55,8 +55,8 @@ class Data(object):
                 self.feats[cur_feat] = self.getTokenFreq()
             elif cur_feat == 'CONCEPTS':
                 self.feats[cur_feat] = umlsfeats.getUMLSFeatures(concepts)
-            elif cur_feat == 'DSM+1':
-                self.feats[cur_feat] = umlsfeats.getDSMPlusOneFeatures(concepts, True, True)
+            elif cur_feat in ['DSM', 'DSM+1', 'DSM+2','SNOMED','SNOMED+1']:
+                self.feats[cur_feat] = umlsfeats.getLexiconFeatures(concepts,cur_feat, True, True)
             elif cur_feat == 'MED':
                 self.feats[cur_feat] = umlsfeats.getMedFeats(concepts, getMeds = True, getActComp = False, getMeta = True, verbose = True)
             elif cur_feat == "CONCEPT_VECTOR":
@@ -71,7 +71,4 @@ class Data(object):
                 self.feats[cur_feat] = umlsfeats.calculateAverageConceptVectorDistance(concepts, filterName='ALL')
             elif cur_feat == 'DIST_HIER':
                 self.feats[cur_feat] = umlsfeats.getHierarchicalDistanceFeatures(concepts, filterName='ALL')
-            elif cur_feat == 'DSM':
-                self.feats['DSM'] = umlsfeats.getDSMFeatures(concepts,True, getMeta=True)
-            elif cur_feat == 'SNOMED':
-                self.feats['SNOMED'] = umlsfeats.getSNOMEDFeatures(concepts,True, getMeta=True)
+            

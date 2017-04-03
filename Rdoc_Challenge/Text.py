@@ -41,7 +41,6 @@ class Text(object):
         return nsentences
 
     def get_tokens(self):
-
         return [t.str for t in self.tokens]
 
     def get_covered_tokens(self, begin, end):
@@ -98,6 +97,17 @@ class Text(object):
             if begin <= c_begin and end >= c_end:
                 concepts.append(concept)
         return concepts
+    
+    def get_covered_words_annots(self, begin, end):
+        words = []
+
+        for token in self.tokens:
+            c_begin = token.begin
+            c_end = token.end
+
+            if begin <= c_begin and end >= c_end:
+                words.append(token)
+        return words
 
     def get_non_denied_text(self):
 
@@ -113,9 +123,51 @@ class Text(object):
                     words.extend(a_words)
                 else:
                     words.extend(q_words)
-
-        return words 
+        return words
     
+    
+    def processWordsOnContext(self, cueCollection, modifyInsteadOfRemove=False, prefix='DEN_', includeAnswers=True):
+        '''
+        Core function that tries a list of cues on all segments in the text. You can use it to detect uncertainty or denial, and you can either
+        not add questions for which the answer is indicated as a cue or you can modify them by adding a prefix
+        '''
+        retainedWords = []
+        segmenter = Segment()
+
+        for segment in segmenter.segment(self):
+            qCon = self.get_covered_words_annots(segment.begQue, segment.endQue)
+            aCon = self.get_covered_words_annots(segment.begAns, segment.endAns)
+            #print('qcon:',[con.ide for con in qCon])
+            #print('acon:',[con.ide for con in aCon])
+            if bool(segment.answers):
+                # if not set(segment.answers[0].lower().split()).intersection(cueCollection):
+                
+                '''cueFound = False
+                for cue in cueCollection:
+                    if cue in segment.answers[0].lower():
+                        cueFound = True
+                        break
+                    
+                if not cueFound:'''
+                if not set(segment.answers[0].lower().split()).intersection(cueCollection):
+                    retainedWords.extend(qCon)
+                    if (includeAnswers):
+                        retainedWords.extend(aCon)
+                else:
+                    #do nothing if remove, add it with a prefix if modify
+                    if modifyInsteadOfRemove:
+                        for con in qCon:
+                            nc = copy.copy(con)
+                            nc.str = prefix + con.str
+                            retainedWords.append(nc) 
+                        if (includeAnswers):
+                            for con in aCon:
+                                nc = copy.copy(con)
+                                nc.str = prefix + con.str
+                                retainedWords.append(nc) 
+                if not includeAnswers:
+                    retainedWords.extend(aCon)
+        return retainedWords
     
     
     def processConceptsOnContext(self, cueCollection, modifyInsteadOfRemove=False, prefix='DEN_', includeAnswers=True):
@@ -169,6 +221,7 @@ class Text(object):
         """
         tb = TextBits()
         self.concepts = self.processConceptsOnContext(tb.denials)
+        self.tokens = self.processWordsOnContext(tb.denials)
         
     def separate_concepts_from_denied_questions(self):
         """
@@ -178,6 +231,7 @@ class Text(object):
         """
         tb = TextBits()
         self.concepts = self.processConceptsOnContext(tb.denials, modifyInsteadOfRemove=True, prefix='DEN_')
+        self.tokens = self.processWordsOnContext(tb.denials, modifyInsteadOfRemove=True, prefix='DEN_')
         
     def remove_concepts_from_uncertain_questions(self):
         """
@@ -187,6 +241,7 @@ class Text(object):
         """
         tb = TextBits()
         self.concepts = self.processConceptsOnContext(tb.conflicted)
+        self.tokens = self.processWordsOnContext(tb.denials, modifyInsteadOfRemove=True, prefix='DEN_')
         
     def separate_concepts_from_uncertain_questions(self):
         """
@@ -196,6 +251,7 @@ class Text(object):
         """
         tb = TextBits()
         self.concepts = self.processConceptsOnContext(tb.conflicted, modifyInsteadOfRemove=True, prefix='UNC_')
+        self.tokens = self.processWordsOnContext(tb.denials, modifyInsteadOfRemove=True, prefix='DEN_')
         
     def remove_concepts_from_family_questions(self):
         """
@@ -205,11 +261,15 @@ class Text(object):
         """
         tb = TextBits()
         retainedConcepts = []
+        retainedWords = []
         segmenter = Segment()
 
         for segment in segmenter.segment(self):
             qCon = self.get_covered_concepts_annots(segment.begQue, segment.endQue)
             aCon = self.get_covered_concepts_annots(segment.begAns, segment.endAns)
+            
+            qTok = self.get_covered_words_annots(segment.begQue, segment.endQue)
+            aTok = self.get_covered_words_annots(segment.begAns, segment.endAns)
             #print('qcon:',[con.ide for con in qCon])
             #print('acon:',[con.ide for con in aCon])
             if bool(segment.answers):
@@ -222,8 +282,11 @@ class Text(object):
                 if not cueFound:
                     retainedConcepts.extend(qCon)
                     retainedConcepts.extend(aCon)
+                    retainedWords.extend(qTok)
+                    retainedWords.extend(aTok)
                 #do nothing if remove, add it with a prefix if modify
         self.concepts = retainedConcepts
+        self.tokens = retainedWords
         
     def separate_concepts_from_family_questions(self):
         """
@@ -234,11 +297,15 @@ class Text(object):
         tb = TextBits()
         prefix='FAM_'
         retainedConcepts = []
+        retainedWords = []
         segmenter = Segment()
 
         for segment in segmenter.segment(self):
             qCon = self.get_covered_concepts_annots(segment.begQue, segment.endQue)
             aCon = self.get_covered_concepts_annots(segment.begAns, segment.endAns)
+            
+            qTok = self.get_covered_words_annots(segment.begQue, segment.endQue)
+            aTok = self.get_covered_words_annots(segment.begAns, segment.endAns)
             #print('qcon:',[con.ide for con in qCon])
             #print('acon:',[con.ide for con in aCon])
             if bool(segment.answers):
@@ -251,6 +318,8 @@ class Text(object):
                 if not cueFound:
                     retainedConcepts.extend(qCon)
                     retainedConcepts.extend(aCon)
+                    retainedWords.extend(qTok)
+                    retainedWords.extend(aTok)
                 else:
                     #do nothing if remove, add it with a prefix if modify
                     for con in qCon:
@@ -263,3 +332,4 @@ class Text(object):
                             retainedConcepts.append(nc) 
 
         self.concepts = retainedConcepts
+        self.tokens = retainedWords

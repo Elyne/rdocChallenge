@@ -4,11 +4,11 @@ Our approach to the CEGS N-GRID 2016 Shared Task in Clinical Natural Language Pr
 Written in Python 3.5
 
 Authors: 
-- Elyne Scheurwegs
-- Madhumita Sushil
-- Stéphan Tulkens
-- Walter Daelemans
-- Kim Luyckx
+- Elyne Scheurwegs: http://adrem.ua.ac.be/elynescheurwegs
+- Madhumita Sushil: https://www.linkedin.com/in/madhumita-sushil-5bba4a62/
+- Stéphan Tulkens: http://www.clips.ua.ac.be/people/stephan-tulkens
+- Walter Daelemans: http://www.clips.ua.ac.be/~walter/
+- Kim Luyckx: http://www.clips.ua.ac.be/~kim/index.php
 
 ## Setting up the project
 - Fix dependencies. We import a lot of stuff, but it is all installable through pip3

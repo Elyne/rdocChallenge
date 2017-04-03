@@ -43,6 +43,8 @@ class Resources(object):
     medFilter = None
     snomedFilter = None
     
+    lexiconFilters = dict()
+    
     @classmethod  
     def getWordVectors(self):
         '''
@@ -70,21 +72,32 @@ class Resources(object):
             self.conceptVectors = Reach(cfg.PATH_RESOURCES + 'concepts_choi.txt', header=False)
         return self.conceptVectors
     
-    @classmethod
-    def getDSMdev1(self):
-        if self.dsmDev1Filter == None:
-            self.dsmDev1Filter = dict()
-            for line in FileIterator(cfg.PATH_RESOURCES+'dsm4_rel1.txt'):
-                self.dsmDev1Filter[line[0].split('-')[0]] = line[1][0]
-        return self.dsmDev1Filter
     
     @classmethod
-    def getDSM(self):
-        if self.dsmFilter == None:
-            self.dsmFilter = dict()
-            for line in FileIterator(cfg.PATH_RESOURCES+'dsm4.txt'):
-                self.dsmFilter[line[0].split('-')[0]] = line[1][0]
-        return self.dsmFilter
+    def getLexiconFilter(self, lexiconName):
+        try:
+            lib = self.lexiconFilters[lexiconName]
+        except:
+            #make the new lib
+            lib = dict()
+            if (lexiconName == 'DSM'):
+                for line in FileIterator(cfg.PATH_RESOURCES+'dsm4.txt'):
+                    lib[line[0].split('-')[0]] = line[1][0]
+            elif (lexiconName == 'DSM+1'):
+                for line in FileIterator(cfg.PATH_RESOURCES+'dsm4_rel1.txt'):
+                    lib[line[0].split('-')[0]] = line[1][0]
+            elif (lexiconName == 'DSM+2'):
+                for line in FileIterator(cfg.PATH_RESOURCES+'dsm4_rel2.txt'):
+                    lib[line[0].split('-')[0]] = line[1][0]
+            elif (lexiconName == 'SNOMED'):
+                for line in FileIterator(cfg.PATH_RESOURCES+'SNOMED_PSYCH.txt'):
+                    lib[line[0].split('-')[0]] = line[1][0]
+            elif (lexiconName == 'SNOMED+1'):
+                for line in FileIterator(cfg.PATH_RESOURCES+'SNOMED_PSYCH_rel1.txt'):
+                    lib[line[0].split('-')[0]] = line[1][0]
+            print(lexiconName, 'has', len(lib), 'records.')
+            self.lexiconFilters[lexiconName] = lib
+        return lib
     
     @classmethod
     def getMedFilter(self):
@@ -100,14 +113,29 @@ class Resources(object):
                 self.medRelFilter[cui1].append(cui2)
         return self.medFilter, self.activeCompFilter, self.medRelFilter
     
-    @classmethod
+    '''@classmethod
     def getSnomedFilter(self):
         if self.snomedFilter == None:    
-            #TODO: edit here for subsets
             self.snomedFilter = dict()
             #for line in FileIterator(cfg.PATH_RESOURCES+'dsm4_snomed_compound.txt'):
             for line in FileIterator(cfg.PATH_RESOURCES+'SNOMED_PSYCH.txt'):
                 self.snomedFilter[line[0].split('-')[0]] = line[1][0]
         return self.snomedFilter
+    
+    @classmethod
+    def getDSMdev1(self):
+        if self.dsmDev1Filter == None:
+            self.dsmDev1Filter = dict()
+            for line in FileIterator(cfg.PATH_RESOURCES+'dsm4_rel1.txt'):
+                self.dsmDev1Filter[line[0].split('-')[0]] = line[1][0]
+        return self.dsmDev1Filter
+    
+    @classmethod
+    def getDSM(self):
+        if self.dsmFilter == None:
+            self.dsmFilter = dict()
+            for line in FileIterator(cfg.PATH_RESOURCES+'dsm4.txt'):
+                self.dsmFilter[line[0].split('-')[0]] = line[1][0]
+        return self.dsmFilter'''
     
         
